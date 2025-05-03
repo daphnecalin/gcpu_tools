@@ -1,0 +1,11 @@
+[package]
+name = "assembler"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+
+[[bin]]
+name = "assembler"
+path = "src/"
+
