@@ -1,9 +1,9 @@
+mod instructions;
+
 const ROM_SIZE: u16 = 1024;
 const RAM_SIZE: u16 = 1024;
 const DATA_SIZE: u8 = 8;
 
-// ROM will occupy the lower address bits and RAM will occupy the upper bits, this assumption is made in
-// ROM_SIZE and RAM_SIZE should be powers of two
 enum  AR { // Selects A or B from the arithmetic registers
     A,
     B
@@ -42,17 +42,27 @@ struct Computer {
 
 impl Computer {
 
-    fn get_data(addr: u16) { // Assumes ROM before RAM in memory
-        println!("hi")
-    } // also might change
+    fn get_data(addr: u16) -> u8 { // Assumes ROM before RAM in memory
+        if (addr < ROM_Size - 1) {
+            return rom[addr*8]; // TODO: check address is in bounds
+        } else {
+            return rom[(addr - RAM_SIZE)*8];
+        }
+    }
+    // scenarios: a function is called that needs 2 args, but only 1 is passed, so the next opcode is taken as an argument
+    // in a mif it would just read this arg.. no way to verify if it's pure data, so it should be fine to just pass in the args
+    // but the actual problem is that the opcode is needed to get the args, so this function doesn't quite work
+    // ...enum??????? probably need to convert this whole thing
+    // TODO: add error handling, need to check that args are correct before they're actually passed in
 
-    // TODO: add error handling
-    fn execute(opcode: u8, arg: u16) {
+    // just needs to accept an array of hex values that starts at the opcode, and output an instruction
+    // can finish putting the enums in when i've finalized that this is a useful function
+    fn hex_to_instruction(hex: [u8]) -> Instruction {
         match opcode {
             // Data Movement Instructions
-            0x00 => transfer_AR(AR::B), // TAB
-            0x01 => transfer_AR(AR::A), // TBA
-            0x02 => 0,// LDAA #data
+            0x00 => return Instruction::TAB, // TAB
+            0x01 => return Instruction::TBA, // TBA
+            0x02 => load_AR(AR::A),// LDAA #data
             0x03 => 0, // LDAB #data
             0x04 => 0,// LDAA addr // get address then call 
             0x05 => 0,// LDAB addr
@@ -95,17 +105,9 @@ impl Computer {
         }
     }
 
-    fn transfer_AR(destination: AR) {
-        match destination {
-            AR::A => A = B,
-            AR::B => B = A
-        }
+    // takes an instruction, matches it, and does whatever operation on registers/memory it needs
+    fn execute(inst: Instruction) {
+
     }
 
-    fn load_AR(destination: AR, data: u8) {
-        match destination {
-            AR::A => A = data,
-            AR::B => B = data
-        }
-    }
 }
